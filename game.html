@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Love Catch Game 💘</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { background: #ffe0f7; font-family: 'Comic Sans MS', cursive, sans-serif;}
+        h2 { color: #d81b60; text-align:center; margin-top:28px;}
+        #score { font-size:1.3em; color:#d81b60; text-align:center; margin:12px;}
+        #gameBox {
+            width: 350px; height: 410px; margin: 0 auto; background: #fff7fb;
+            border-radius: 28px; border:2px solid #f8bbd0; position:relative; overflow:hidden;
+            box-shadow: 0 8px 32px #f0629230;
+        }
+        #basket {
+            position: absolute; left: 145px; bottom: 10px;
+            width: 60px; height: 60px; font-size: 2.7em;
+            z-index: 2;
+            text-align: center;
+            user-select: none;
+            cursor: pointer;
+        }
+        .love {
+            position: absolute; font-size: 2em;
+            pointer-events: none; opacity: 0.95;
+        }
+        #popup {
+            display:none; position: fixed; top:40%; left:50%;
+            transform:translate(-50%,-50%);
+            background: #fff0fa; border-radius: 22px;
+            border:2px solid #f06292; padding:30px 20px; text-align:center;
+            box-shadow: 0 4px 24px #f0629260; z-index:5;
+        }
+        #popup button {
+            margin: 12px 10px 0 10px;
+            background: linear-gradient(90deg,#f06292,#ffb3ce);
+            color: #fff; border: none; border-radius: 13px;
+            padding: 11px 30px; font-size: 1.14em; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<h2>Catch The Love! 💖</h2>
+<div id="score">Score: 0</div>
+<div id="gameBox">
+    <div id="basket">🪣</div>
+</div>
+<div id="popup">
+    <div style="font-size:1.3em;color:#ae1964;margin-bottom:10px;">
+        You Win!<br>You caught all the love! 💖
+    </div>
+    <button onclick="restartGame()">Restart</button>
+    <button onclick="nextGame()">Next Game</button>
+</div>
+<script>
+const basket = document.getElementById('basket');
+const gameBox = document.getElementById('gameBox');
+const scoreDiv = document.getElementById('score');
+const popup = document.getElementById('popup');
+let score = 0, gameRunning = true, basketPos = 145, basketWidth = 60;
+
+// Move basket
+function setBasket(pos) {
+    let max = gameBox.clientWidth - basketWidth;
+    if(pos < 0) pos = 0;
+    if(pos > max) pos = max;
+    basketPos = pos;
+    basket.style.left = pos + 'px';
+}
+// Keyboard
+document.addEventListener('keydown', e=>{
+    if(!gameRunning) return;
+    if(e.key==='ArrowLeft') setBasket(basketPos-24);
+    if(e.key==='ArrowRight') setBasket(basketPos+24);
+});
+// Touch drag/swipe
+let isTouch = false, startX = null;
+gameBox.addEventListener('touchstart', e=>{
+    if(!gameRunning) return;
+    isTouch = true;
+    startX = e.touches[0].clientX;
+});
+gameBox.addEventListener('touchmove', e=>{
+    if(!gameRunning || !isTouch) return;
+    let dx = e.touches[0].clientX - startX;
+    if(Math.abs(dx) > 16) {
+        setBasket(basketPos + dx);
+        startX = e.touches[0].clientX;
+    }
+});
+gameBox.addEventListener('touchend', ()=>{isTouch=false;});
+
+// Spawn and animate hearts
+function spawnLove() {
+    if(!gameRunning) return;
+    const hearts = ["❤️","💗","💕","💖","💘","💝"];
+    let love = document.createElement('div');
+    love.className = 'love';
+    love.innerHTML = hearts[Math.floor(Math.random()*hearts.length)];
+    let left = Math.random() * (gameBox.clientWidth - 32);
+    love.style.left = left + "px"; love.style.top = "-40px";
+    gameBox.appendChild(love);
+
+    let fall = setInterval(()=>{
+        let top = parseFloat(love.style.top||"-40") + 4.2;
+        love.style.top = top + "px";
+        let basketRect = basket.getBoundingClientRect();
+        let loveRect = love.getBoundingClientRect();
+        // Check catch
+        if (
+            loveRect.bottom > basketRect.top &&
+            loveRect.left < basketRect.right &&
+            loveRect.right > basketRect.left &&
+            loveRect.top < basketRect.bottom
+        ) {
+            score++;
+            scoreDiv.textContent = "Score: " + score;
+            gameBox.removeChild(love);
+            clearInterval(fall);
+            if(score>=5) { showPopup(); }
+        }
+        // Missed
+        else if (top > 370) {
+            if(gameBox.contains(love)) gameBox.removeChild(love);
+            clearInterval(fall);
+        }
+    }, 18);
+}
+function showPopup() {
+    gameRunning = false;
+    popup.style.display = 'block';
+}
+function restartGame() {
+    score = 0;
+    scoreDiv.textContent = "Score: 0";
+    gameRunning = true;
+    setBasket(gameBox.clientWidth/2 - basketWidth/2);
+    popup.style.display = 'none';
+}
+function nextGame() {
+    window.location.href = "2game.html";
+}
+function startGame() {
+    score = 0;
+    gameRunning = true;
+    scoreDiv.textContent = "Score: 0";
+    setBasket(gameBox.clientWidth/2 - basketWidth/2);
+    popup.style.display = 'none';
+    setInterval(()=>{if(gameRunning)spawnLove();}, 950);
+}
+startGame();
+</script>
+</body>
+</html>
