@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Our Love Gallery 💑</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+      body { background: #fff0fa; font-family: 'Comic Sans MS', cursive, sans-serif; text-align:center; margin:0; min-height:100vh;}
+      h2 { color: #d81b60; margin: 30px 0 20px 0; font-family: 'Pacifico', cursive, sans-serif; letter-spacing:1.5px;}
+      .slider-container {
+          position: relative;
+          width: 370px;
+          max-width: 98vw;
+          margin: 0 auto 40px auto;
+          overflow: hidden;
+          border-radius: 26px;
+          box-shadow: 0 8px 32px #e91e6380;
+          background: #fff;
+          animation: fadeInUp .9s;
+      }
+      @keyframes fadeInUp {from{opacity:0;transform:translateY(50px);}to{opacity:1;transform:translateY(0);}}
+      .slider {
+          display: flex;
+          transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+          width: 100%;
+      }
+      .slide {
+          min-width: 100%;
+          height: 430px;
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: slideIn .7s;
+      }
+      @keyframes slideIn {from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
+      .slide img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 26px;
+          transition: 0.3s;
+          box-shadow: 0 2px 16px #f0629299;
+      }
+      .caption {
+          position: absolute;
+          bottom: 0;
+          background: rgba(255,255,255,0.91);
+          width: 100%;
+          color: #d81b60;
+          font-weight: bold;
+          padding: 17px 0 13px 0;
+          font-size: 1.25em;
+          letter-spacing:1px;
+          border-radius:0 0 26px 26px;
+          font-family: 'Pacifico', cursive, sans-serif;
+          text-shadow: 0 2px 8px #fff;
+      }
+      .arrow-btn {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          background: rgba(255,255,255,0.89);
+          border: none;
+          border-radius: 50%;
+          font-size: 2.2em;
+          color: #d81b60;
+          width: 48px;
+          height: 48px;
+          cursor: pointer;
+          box-shadow: 0 4px 16px #d81b6044;
+          z-index: 10;
+          transition: background 0.18s;
+          outline: none;
+          user-select: none;
+      }
+      .arrow-btn:hover { background: #ffd1e3; }
+      .arrow-btn.left { left: 10px; }
+      .arrow-btn.right { right: 10px; }
+      .dots {
+          display: flex;
+          gap: 12px;
+          justify-content: center;
+          margin: 18px 0 0 0;
+      }
+      .dot {
+          width: 15px;
+          height: 15px;
+          border-radius: 50%;
+          background: #ffd1e3;
+          border: 2px solid #d81b60;
+          cursor: pointer;
+          transition: background 0.18s, border 0.18s;
+      }
+      .dot.active {
+          background: #d81b60;
+          border: 2px solid #ffcce0;
+      }
+      .quote { margin: 40px auto 0 auto; background: #fffbe9d9; border-radius: 22px; max-width: 500px; padding: 24px; color: #d81b60; font-size: 1.28em;box-shadow: 0 4px 18px #fa88b612; font-family:'Pacifico',cursive,sans-serif;}
+      .hearts-bg {
+          position: fixed;
+          left: 0; top: 0; width: 100vw; height: 100vh;
+          pointer-events: none;
+          z-index: 0;
+      }
+      .hearts-bg span {
+          position: absolute;
+          color: #ff7eb3;
+          font-size: 2.8em;
+          opacity: 0.16;
+          animation: floatHeart 17s linear infinite;
+      }
+      @keyframes floatHeart {
+          0% {transform: translateY(0) scale(1) rotate(0);}
+          100% {transform: translateY(-120vh) scale(1.1) rotate(24deg);}
+      }
+      @media (max-width: 500px) {
+          .slider-container {width: 98vw;}
+          .slide {height: 220px;}
+          .quote {font-size:1em;max-width:95vw;}
+      }
+    </style>
+</head>
+<body>
+<div class="hearts-bg" id="hearts-bg"></div>
+<h2>Our Memories Together 💑</h2>
+<div class="slider-container">
+  <button class="arrow-btn left" id="prevBtn">&#8678;</button>
+  <div class="slider" id="slider"></div>
+  <button class="arrow-btn right" id="nextBtn">&#8680;</button>
+</div>
+<div class="dots" id="dots"></div>
+<div class="quote">
+  &#10084;&#65039; Even on your saddest days, my love will always be your sunshine. I love you, Titli.<br>
+  <b>— Your love, Ranit 🦋</b>
+</div>
+<script>
+const images = [
+  {src:"https://i.ibb.co/1GrqKWRn/image.jpg",caption:"Precious Moment 1"},
+  {src:"https://i.ibb.co/97mFLPS/image.jpg",caption:"Precious Moment 2"},
+  {src:"https://i.ibb.co/vCYvBg0m/image.jpg",caption:"Precious Moment 3"},
+  {src:"https://i.ibb.co/qMhfrsFV/image.jpg",caption:"Precious Moment 4"},
+];
+const slider = document.getElementById('slider');
+const dots = document.getElementById('dots');
+let current = 0;
+// Floating hearts
+const heartsBg = document.getElementById('hearts-bg');
+let heartEmojis = ["❤️","💗","💕","💖","💘","💝"];
+for(let i=0;i<14;i++){
+    let s = document.createElement('span');
+    s.textContent = heartEmojis[Math.floor(Math.random()*heartEmojis.length)];
+    s.style.left = Math.random()*100 + "vw";
+    s.style.top = (Math.random()*100) + "vh";
+    s.style.fontSize = (Math.random()*1.1+1.2) + "em";
+    s.style.opacity = Math.random()*0.19+0.13;
+    s.style.animationDelay = (Math.random()*8) + "s";
+    heartsBg.appendChild(s);
+}
+
+// Create slides
+images.forEach((img, idx)=>{
+    let slide = document.createElement('div');
+    slide.className = "slide";
+    slide.innerHTML = `<img src="${img.src}" alt="Memory"/><div class="caption">${img.caption}</div>`;
+    slider.appendChild(slide);
+
+    // Dots
+    let dot = document.createElement('span');
+    dot.className = "dot" + (idx===0 ? " active" : "");
+    dot.onclick = () => goToSlide(idx);
+    dots.appendChild(dot);
+});
+
+// Slide effect logic
+function updateSlider() {
+    slider.style.transform = `translateX(-${current*100}%)`;
+    Array.from(dots.children).forEach((d,i)=>d.className = "dot"+(i===current?" active":""));
+}
+function goToSlide(idx) {
+    current = idx;
+    updateSlider();
+}
+document.getElementById('prevBtn').onclick = () => {
+    current = (current - 1 + images.length) % images.length;
+    updateSlider();
+}
+document.getElementById('nextBtn').onclick = () => {
+    current = (current + 1) % images.length;
+    updateSlider();
+}
+
+// Swipe on mobile
+let startX = null;
+slider.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+});
+slider.addEventListener('touchend', e => {
+    if(startX === null) return;
+    let endX = e.changedTouches[0].clientX;
+    let diff = endX - startX;
+    if(Math.abs(diff)>40) {
+        if(diff < 0) document.getElementById('nextBtn').click();
+        else document.getElementById('prevBtn').click();
+    }
+    startX = null;
+});
+
+// Keyboard navigation
+window.addEventListener('keydown', function(e){
+    if(e.key==="ArrowLeft") document.getElementById('prevBtn').click();
+    if(e.key==="ArrowRight") document.getElementById('nextBtn').click();
+});
+
+// Optional: Auto-slide every 10 seconds
+// setInterval(() => { document.getElementById('nextBtn').click(); }, 10000);
+
+updateSlider();
+</script>
+</body>
+</html>
