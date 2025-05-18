@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mind Love Puzzle 💡❤️</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+        body {
+            background: linear-gradient(135deg, #ffe7f2 0%, #ffecd2 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            overflow-x: hidden;
+        }
+        .floating-hearts {
+            position: fixed;
+            left: 0; top: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .floating-hearts span {
+            position: absolute;
+            color: #ff7eb3;
+            font-size: 2.2em;
+            opacity: 0.21;
+            animation: floatHeart2 20s linear infinite;
+        }
+        @keyframes floatHeart2 {
+            0% {transform: translateY(0) scale(1) rotate(0);}
+            100% {transform: translateY(-120vh) scale(1.1) rotate(-24deg);}
+        }
+        h2 {
+            color: #c2185b;
+            margin: 38px 0 10px 0;
+            font-size: 2.1em;
+            font-family: 'Pacifico', cursive, sans-serif;
+            text-shadow: 0 2px 8px #fff0;
+            z-index:2;
+            letter-spacing: 1px;
+            animation: fadeInDown 1.1s;
+        }
+        @keyframes fadeInDown {
+            from {opacity:0;transform:translateY(-20px);}
+            to {opacity:1;transform:translateY(0);}
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 90px);
+            grid-gap: 22px;
+            margin: 38px 0 0 0;
+            background: #fff;
+            box-shadow: 0 8px 24px #fa88b660;
+            border-radius: 22px;
+            padding: 27px;
+            animation: fadeInUp 1.3s;
+        }
+        .tile {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #ffd1e3 0%, #ffe7fa 100%);
+            border: 3px solid #f06292;
+            border-radius: 19px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.7em;
+            cursor: pointer;
+            transition: 0.27s;
+            box-shadow: 0 2px 12px #fa88b62a;
+            animation: tilePop 0.7s;
+            user-select: none;
+            position: relative;
+            will-change: transform, background;
+        }
+        .tile.matched {
+            background: linear-gradient(135deg,#fdc4e1,#fffbe8 100%);
+            border-color: #7c43bd;
+            color: #6d2d7d;
+            transform: scale(1.14) rotate(-7deg);
+            animation: matchAnim 0.5s;
+            z-index:2;
+        }
+        .tile.flipped:not(.matched) {
+            background: #fffbe8;
+            border-color: #fa88b6;
+            transform: scale(1.09) rotate(2deg);
+            color: #d81b60;
+            z-index:1;
+        }
+        .tile:active:not(.matched) {
+            transform: scale(1.04) rotate(1deg);
+        }
+        @keyframes tilePop {
+            0% {transform: scale(0.78) rotate(-18deg);}
+            100% {transform: scale(1) rotate(0);}
+        }
+        @keyframes matchAnim {
+            0% {background: #fffbe8;}
+            100% {background: #fdc4e1;}
+        }
+        #message {
+            margin: 28px 0 0 0;
+            font-size: 1.24em;
+            color: #d81b60;
+            font-family: 'Pacifico', cursive, sans-serif;
+            letter-spacing:.4px;
+            animation: fadeIn 0.7s;
+            min-height: 32px;
+        }
+        @keyframes fadeIn { to { opacity: 1; } }
+        #nextBtn {
+            display: none;
+            margin: 28px 0 0 0;
+            padding: 15px 34px;
+            font-size: 1.14em;
+            background: linear-gradient(90deg,#7c43bd,#f06292);
+            color: #fff;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 18px #a883c57a;
+            transition: 0.21s;
+            font-family: inherit;
+            font-weight:bold;
+            animation: pulseNext 1.3s infinite alternate;
+        }
+        @keyframes pulseNext {
+            0% {box-shadow: 0 4px 18px #a883c57a;}
+            100% {box-shadow: 0 8px 32px #f0629266;}
+        }
+        /* Fancy win popup */
+        #winPopup {
+            display:none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(255, 192, 203, 0.35);
+            z-index: 99;
+            align-items: center;
+            justify-content: center;
+            animation: popupFadeIn .8s;
+        }
+        @keyframes popupFadeIn {
+            0% {opacity: 0;}
+            100% {opacity: 1;}
+        }
+        .win-content {
+            position: relative;
+            background: #fff0fa;
+            border: 2px solid #f06292;
+            border-radius: 28px;
+            box-shadow: 0 4px 24px #fa88b622;
+            padding: 40px 30px 28px 30px;
+            text-align: center;
+            min-width: 290px;
+            max-width: 90vw;
+            animation: popScale 0.7s cubic-bezier(.5,1.77,.4,.93);
+        }
+        @keyframes popScale {
+            0% {transform: scale(0.7);}
+            80% {transform: scale(1.1);}
+            100% {transform: scale(1);}
+        }
+        .win-content h3 {
+            color: #d81b60;
+            font-family: 'Pacifico', cursive, sans-serif;
+            font-size: 2em;
+            margin-bottom: 14px;
+            animation: winGlow 1.5s infinite alternate;
+        }
+        @keyframes winGlow {
+            0% {text-shadow: 0 0 10px #ffd1e3, 0 0 18px #fff;}
+            100%{text-shadow: 0 0 14px #ff62b0, 0 0 28px #fff;}
+        }
+        .win-content .win-heart {
+            font-size: 2.3em;
+            margin-bottom: 12px;
+            display: inline-block;
+            animation: winHeartBounce 0.8s infinite alternate;
+        }
+        @keyframes winHeartBounce {
+            0% {transform: translateY(0) scale(1);}
+            100%{transform: translateY(-8px) scale(1.15);}
+        }
+        .win-content .desc {
+            font-size:1.18em;
+            color:#ae1964;
+            margin-bottom:18px;
+        }
+        .popup-btn {
+            margin: 12px 10px 0 10px;
+            background: linear-gradient(90deg,#f06292,#ffb3ce);
+            color: #fff;
+            border: none;
+            border-radius: 13px;
+            padding: 12px 32px;
+            font-size: 1.16em;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight:bold;
+            box-shadow: 0 2px 12px #f0629266;
+            transition: background 0.2s, transform 0.13s;
+        }
+        .popup-btn:hover {
+            background: #d81b60;
+            transform: scale(1.06);
+        }
+        .confetti {
+            position: absolute;
+            left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;
+        }
+        .confetti-piece {
+            position: absolute;
+            width: 18px; height: 18px;
+            font-size: 1.3em;
+            opacity: 0.87;
+            animation: confettiDrop 1.2s ease-in forwards;
+        }
+        @keyframes confettiDrop {
+            from { transform: translateY(-60px) rotate(0);}
+            to   { transform: translateY(120px) rotate(340deg);}
+        }
+        @media (max-width: 480px) {
+            .board {grid-template-columns: repeat(3, 64px);}
+            .tile {width:64px;height:64px;font-size:1.65em;}
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-hearts" id="hearts-2game"></div>
+    <h2>Love Mind Game 💡❤️</h2>
+    <div class="board" id="board"></div>
+    <div id="message">Find all the heart pairs to win!</div>
+    <button id="nextBtn" onclick="nextPage()">Next</button>
+    <!-- Win popup -->
+    <div id="winPopup">
+        <div class="win-content">
+            <span class="win-heart">💝</span>
+            <h3>So Smart Titli!</h3>
+            <div class="desc">You matched all the hearts!<br>You're my genius butterfly. 🦋</div>
+            <button class="popup-btn" onclick="restartBoard()">Restart</button>
+            <button class="popup-btn" onclick="nextPage()">Next</button>
+            <div class="confetti" id="confetti"></div>
+        </div>
+    </div>
+    <script>
+        // Floating hearts
+        const hearts2 = document.getElementById('hearts-2game');
+        let heartEmojis = ["❤️","💗","💕","💖"];
+        for(let i=0;i<10;i++){
+            let s = document.createElement('span');
+            s.textContent = heartEmojis[Math.floor(Math.random()*heartEmojis.length)];
+            s.style.left = Math.random()*100 + "vw";
+            s.style.top = (Math.random()*96) + "vh";
+            s.style.fontSize = (Math.random()*1.1+1.2) + "em";
+            s.style.opacity = Math.random()*0.23+0.13;
+            s.style.animationDelay = (Math.random()*9) + "s";
+            hearts2.appendChild(s);
+        }
+
+        // Board logic
+        let board = document.getElementById('board');
+        let message = document.getElementById('message');
+        let nextBtn = document.getElementById('nextBtn');
+        let winPopup = document.getElementById('winPopup');
+        let confettiDiv = document.getElementById('confetti');
+        let emojis, openTiles, matched, lockBoard;
+
+        function shuffleEmojis() {
+            let arr = ["💞","💝","💘","💞","💝","💘"];
+            for (let i = arr.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function resetGame(){
+            board.innerHTML = '';
+            openTiles = [];
+            matched = [];
+            emojis = shuffleEmojis();
+            lockBoard = false;
+            for(let i=0;i<6;i++){
+                const tile = document.createElement('div');
+                tile.className = "tile";
+                tile.dataset.idx = i;
+                tile.innerHTML = "❓";
+                tile.addEventListener('click', ()=>reveal(tile,i));
+                board.appendChild(tile);
+            }
+            message.textContent = "Find all the heart pairs to win!";
+            nextBtn.style.display = "none";
+        }
+
+        function reveal(tile, idx){
+            if(lockBoard || tile.classList.contains('matched') || tile.classList.contains('flipped') || openTiles.includes(tile)) return;
+            tile.innerHTML = emojis[idx];
+            tile.classList.add('flipped');
+            openTiles.push(tile);
+            if(openTiles.length===2){
+                lockBoard = true;
+                setTimeout(checkPair, 700);
+            }
+        }
+        function checkPair(){
+            const [t1,t2] = openTiles;
+            const i1 = parseInt(t1.dataset.idx), i2 = parseInt(t2.dataset.idx);
+            if(emojis[i1]===emojis[i2]){
+                t1.classList.remove('flipped');
+                t2.classList.remove('flipped');
+                t1.classList.add('matched');
+                t2.classList.add('matched');
+                matched.push(emojis[i1]);
+                if(matched.length===3){
+                    showWinPopup();
+                } else {
+                    message.innerHTML = `<span style="color:#7c43bd;font-weight:bold">Great! Find the next pair! 💘</span>`;
+                }
+            } else {
+                message.innerHTML = `<span style="color:#ad1457">Oops! Try again!</span>`;
+                setTimeout(()=>{
+                    t1.innerHTML = "❓";
+                    t2.innerHTML = "❓";
+                    t1.classList.remove('flipped');
+                    t2.classList.remove('flipped');
+                }, 320);
+            }
+            openTiles = [];
+            setTimeout(()=>{lockBoard=false;}, 340);
+        }
+        function showWinPopup(){
+            winPopup.style.display = 'flex';
+            confettiAnimation();
+        }
+        function confettiAnimation() {
+            confettiDiv.innerHTML = "";
+            const confettiEmojis = ["💗","💖","💘","💝","💕"];
+            for (let i = 0; i < 18; i++) {
+                let span = document.createElement('span');
+                span.className = 'confetti-piece';
+                span.textContent = confettiEmojis[Math.floor(Math.random()*confettiEmojis.length)];
+                span.style.left = (Math.random()*90 + 5) + "%";
+                span.style.top = (Math.random()*15 + 5) + "px";
+                span.style.fontSize = (Math.random()*0.6+1.0) + "em";
+                span.style.animationDelay = (Math.random()*0.5) + "s";
+                confettiDiv.appendChild(span);
+            }
+        }
+        function restartBoard(){
+            winPopup.style.display = "none";
+            resetGame();
+        }
+        function nextPage(){
+            window.location.href = "gallary.html";
+        }
+        resetGame();
+    </script>
+</body>
+</html>
